@@ -1,0 +1,67 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Teddit Home</title>
+    <style>
+        /* Old Reddit inspired colors */
+        body {
+            background-color: #ffffff; /* white background */
+            color: #000000; /* black text */
+            font-family: Verdana, Arial, sans-serif;
+        }
+
+        h1 {
+            color: #ff4500; /* Reddit orange */
+            border-bottom: 2px solid #cccccc;
+            padding-bottom: 5px;
+        }
+
+        article {
+            background-color: #f6f7f8; /* light gray post background */
+            border: 1px solid #e0e0e0;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        h2 {
+            color: #3366cc; /* Reddit blue for titles/links */
+        }
+
+        a {
+            color: #3366cc;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        small {
+            color: #777777; /* muted gray for metadata */
+        }
+
+        hr {
+            border: 0;
+            border-top: 1px solid #cccccc;
+        }
+    </style>
+</head>
+<body>
+    <h1>All Teddit Posts</h1>
+
+    {% if posts %}
+        {% for post in posts %}
+            <article>
+                <h2>{{ post.title }}</h2>
+                <p>By {{ post.author.user.username }}</p>
+                <p>{{ post.content }}</p>
+                <small>Published on {{ post.created_at|date:"F j, Y" }}</small>
+            </article>
+            <hr>
+        {% endfor %}
+    {% else %}
+        <p>No posts available.</p>
+    {% endif %}
+</body>
+</html>
