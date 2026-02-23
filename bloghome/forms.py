@@ -26,3 +26,6 @@ class AuthorSignupForm(forms.ModelForm):
             author.save()
         return author
         
+class AuthorSigninForm(forms.Form):
+    display_handle=forms.CharField(max_length=50, required=True)
+    password=forms.CharField(widget=forms.PasswordInput, required=True)

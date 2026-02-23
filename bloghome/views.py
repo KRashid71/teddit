@@ -1,8 +1,9 @@
 from django.http import HttpResponse
 from django.shortcuts import render,redirect
+from django.contrib.auth import authenticate, login, logout
 from django.views import View
-from .models import Posts
-from .forms import AuthorSignupForm 
+from .models import Posts, Authors
+from .forms import AuthorSignupForm, AuthorSigninForm 
 
 
 # Create your views here.
@@ -27,3 +28,38 @@ class AuthorSignup(View):
             form.save()
             return redirect('homefeed')
         return render(request, 'bloghome/signup.html', {'form': form})
+    
+class AuthorSignin(View):
+    def get(self,request):
+        form = AuthorSigninForm()
+        return render(request, 'bloghome/signin.html', {'form': form})
+    
+    def post(self,request):
+        form= AuthorSigninForm(request.POST)
+        if form.is_valid():
+            display_handle=form.cleaned_data['display_handle']
+            password=form.cleaned_data['password']
+
+            try:
+                #fetch author with matching display_handle
+                author = Authors.objects.get(display_handle=display_handle)
+                user = author.user
+            except Authors.DoesNotExist:
+                form.add_error('display_handle', 'Invalid display handle')
+                return render(request,'bloghome/signin.html',{'form': form})
+            
+            #Authenticate user using Django's authentication system
+            user = authenticate(username=user.username, password=password)
+            if user is not None:
+                login(request,user)
+                return redirect('homefeed')
+            else:
+                form.add_error(password, 'Invalid password')
+
+        return render(request,'bloghome/signin.html',{'form': form})
+    
+class AuthorSignout(View):
+
+    def get(self, request):
+        logout(request)
+        return redirect('authorsignin')
