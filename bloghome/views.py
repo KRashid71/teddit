@@ -26,7 +26,7 @@ class AuthorSignup(View):
         form = AuthorSignupForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect('homefeed')
+            return redirect('authorsignin')
         return render(request, 'bloghome/signup.html', {'form': form})
     
 class AuthorSignin(View):
