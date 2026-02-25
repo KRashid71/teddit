@@ -1,8 +1,8 @@
 from django.http import HttpResponse
-from django.shortcuts import render,redirect
+from django.shortcuts import render,redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.views import View
-from .models import Posts, Authors
+from .models import Posts, Authors, Comment
 from .forms import AuthorSignupForm, AuthorSigninForm 
 
 
@@ -15,6 +15,19 @@ class HomeFeed(View):
         # return HttpResponse('(posts)')
         return render(request, 'bloghome/home.html', {'posts': posts})
     
+    def post(self,request):
+        if request.user.is_authenticated:
+            post_id = request.POST.get('post_id')
+            content = request.POST.get('content')
+            if post_id and content:
+                post = get_object_or_404(Posts, id=post_id)
+                Comment.objects.create(
+                    post=post,
+                    author=request.user.authors,
+                    content=content
+                )
+        return redirect('homefeed')
+
 class AuthorSignup(View):
     # to render empty signup form
     def get(self,request):

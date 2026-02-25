@@ -21,7 +21,7 @@ class Posts(models.Model):
     title = models.CharField(max_length=200)
     content = models.TextField(max_length=2000)
     time_created = models.DateTimeField(auto_now_add=True)
-
+    vote=models.IntegerField(default=0)
     def __str__(self):
         return self.title
 
@@ -33,6 +33,16 @@ class Posts(models.Model):
 #     password = models.CharField(max_length=100)
 #     date_joined = models.DateTimeField(default=timezone.now)
 
+class Comment(models.Model):
+    author=models.ForeignKey('Authors', on_delete=models.CASCADE)
+    post=models.ForeignKey('Posts', on_delete=models.CASCADE)
+    content=models.TextField(max_length=2000, blank=False)
+    time_created=models.DateTimeField(auto_now_add=True)
+    vote=models.IntegerField(default=0)
+    
+    def __str__(self):
+        return f'Comment by {self.author.name} on {self.post.title}'
+    
 
     
 

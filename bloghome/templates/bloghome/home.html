@@ -45,6 +45,26 @@
             border: 0;
             border-top: 1px solid #cccccc;
         }
+
+        /* Comment section styles */
+        .comments{
+            margin-top: 15px;
+            padding-left: 20px;
+        }
+
+        .comment {
+            font-size: 0.9em;
+            margin-bottom: 10px;
+            padding: 8px;
+            background-color: #f0f0f0; /* slightly darker gray for comments */
+            border: 1px solid #ddd;
+        }
+        
+        .comment-meta {
+            color: #555; font-size: 0.8em;
+        } 
+
+
     </style>
 </head>
 <form action="{% url 'authorsignout' %}" method="get">
@@ -60,7 +80,55 @@
                 <h2>{{ post.title }}</h2>
                 <p>By {{ post.author.user.username }}</p>
                 <p>{{ post.content }}</p>
-                <small>Published on {{ post.time_created|date:"F j, Y, g:i A" }}</small>
+                <small>Published on {{ post.time_created|date:"F j, Y, g:i A"}}</small>
+                <!--comment form-->>
+                <div class="comment-form"> 
+                    {% if user.is_authenticated %}
+                        <!-- Comment form toggle button -->
+                        <button type="button" onclick="toggleCommentForm({{post.id }})">
+                            Add Comment
+                        </button>
+
+                        <!-- Comment From -->
+                        <div id="comment-form-{{ post.id }}" style="display:none; margin-top:10px;">
+                            <form action="{% url 'homefeed' %}" method="post">
+                                {% csrf_token %}
+                                <input type="hidden" name="post_id" value="{{ post.id }}">
+                                <textarea name="content" rows="3" cols="40" placeholder="Write your comment..."></textarea><br>
+                                <button type="submit">Submit</button>
+                            </form>
+                        </div>
+                    {% else %}
+                        <p><small><a href="{% url 'login' %}">Log in</a> to comment</small></p>
+                    {% endif %}
+                </div>
+                
+                <script>
+                
+                function toggleCommentForm(postId) {
+                    const form = document.getElementById("comment-form-" + postId);
+                    form.style.display = (form.style.display === "none") ? "block" : "none"; 
+                } 
+                </script>
+
+                <!--Comment section-->
+                <div class="comment">
+                    <h3 style="font-size:1em; color:#333;">Comments</h3>
+                    {% if post.comment_set.all %}
+                        {%for comment in post.comment_set.all %}
+                            <div class="comment">
+                                <p>{{comment.content}}</p>
+                                <div class="comment-meta">
+                                    Posted by {{comment.author.display_handle}}
+                                    on {{comment.time_created|date:"F j, Y, g:i A" }}
+                                </div>
+                                
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="comment-meta">No comments yet.</p>
+                    {% endif %}
+                </div>
             </article>
             <hr>
         {% endfor %}
