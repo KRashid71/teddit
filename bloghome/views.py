@@ -17,15 +17,45 @@ class HomeFeed(View):
     
     def post(self,request):
         if request.user.is_authenticated:
-            post_id = request.POST.get('post_id')
-            content = request.POST.get('content')
-            if post_id and content:
-                post = get_object_or_404(Posts, id=post_id)
-                Comment.objects.create(
-                    post=post,
-                    author=request.user.authors,
-                    content=content
-                )
+            action = request.POST.get('action')
+
+            #For new Post creation
+            if action=="create_post":
+                title = request.POST.get('title','').strip()
+                content = request.POST.get('content','').strip()
+                if title and content:
+                    Posts.objects.create(
+                        title=title,
+                        content=content,
+                        author=request.user.authors
+                    )
+            #For new Comment creation
+            if action=="create_comment":
+                post_id = request.POST.get('post_id')
+                content = request.POST.get('content','').strip()
+                if post_id and content:
+                    post = get_object_or_404(Posts, id=post_id)
+                    Comment.objects.create(
+                        post=post,
+                        author=request.user.authors,
+                        content=content
+                    )
+            #For upvoting a post
+            elif action=="upvote_post":
+                post_id = request.POST.get('post_id')
+                if post_id:
+                    post = get_object_or_404(Posts, id=post_id)
+                    post.vote += 1
+                    post.save()
+            #For downvoting a post
+            elif action=="downvote_post":
+                post_id = request.POST.get('post_id')
+                if post_id:
+                    post = get_object_or_404(Posts, id=post_id)
+                    post.vote -= 1
+                    post.save()
+        else:
+            return redirect('authorsignin')
         return redirect('homefeed')
 
 class AuthorSignup(View):

@@ -6,9 +6,11 @@
     <style>
         /* Old Reddit inspired colors */
         body {
-            background-color: #ffffff; /* white background */
-            color: #000000; /* black text */
-            font-family: Verdana, Arial, sans-serif;
+            background-color: black; /* white background */
+            color: lightgreen; /* black text */
+            /* font-family: Verdana, Arial, sans-serif; */
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            ;
         }
 
         h1 {
@@ -18,8 +20,8 @@
         }
 
         article {
-            background-color: #f6f7f8; /* light gray post background */
-            border: 1px solid #e0e0e0;
+            background-color: rgb(29, 29, 29); /* light gray post background */
+            border: 1px solid #2e2e2e;
             padding: 15px;
             margin-bottom: 20px;
         }
@@ -56,20 +58,75 @@
             font-size: 0.9em;
             margin-bottom: 10px;
             padding: 8px;
-            background-color: #f0f0f0; /* slightly darker gray for comments */
-            border: 1px solid #ddd;
+            background-color: #2e2e2e; /* slightly darker gray for comments */
+            border: 1px solid #000000;
         }
         
         .comment-meta {
-            color: #555; font-size: 0.8em;
+            color: #696969; font-size: 0.8em;
         } 
 
+        .header-bar {
+            background-color: #ff4500;
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            margin-bottom: 20px;
+        }
+
+        .user-handle {
+            color:white;
+            font-weight: bold;
+            margin-right: 15px;
+        }
+
+        .post-header{
+            display: flex;
+            align-items: center;
+        }
+
+        .vote-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-right: 15px;
+        }
+
+        .vote-box button {
+            background: none;
+            border: none;
+            font-size: 1.2em;
+            cursor: pointer;
+        }
+
+        .vote_count {
+            font-weight: bold;
+            margin: 5px 0;
+        }
 
     </style>
 </head>
-<form action="{% url 'authorsignout' %}" method="get">
-    <button type="submit">Sign Out</button>
-</form>
+<div class="header-bar">
+    {% if user.is_authenticated %}
+        <span class="user-handle">Signed in as {{user.authors.display_handle}}</span>
+        <form action="{% url 'authorsignout' %}" method="get" style="margin-left:auto;">
+            <button type="submit">Sign Out</button>
+        </form>
+    {% endif %}
+</div>
+
+<!-- Write a Post -->
+{% if user.is_authenticated %}
+<div class="new-post" style="margin-bottom:20px; padding:15px; border:1px solid#ccc; background:f9f9f9;">
+    <h2>Post some stuff</h2>
+    <form action="{% url 'homefeed' %}" method="post">
+        {% csrf_token %}
+        <input type="text" name="title" placeholder="Post Title" required><br><br>
+        <textarea name="content" rows="4" cols= "50" placeholder="write some stuff..." required></textarea><br><br>
+        <button type="submit" name="action" value="create_post" >Post</button>
+    </form>
+</div>
+{% endif %}
 
 <body>
     <h1>All Teddit Posts</h1>
@@ -77,15 +134,32 @@
     {% if posts %}
         {% for post in posts %}
             <article>
-                <h2>{{ post.title }}</h2>
-                <p>By {{ post.author.user.username }}</p>
+                <!-- <h2>{{ post.title }}</h2> -->
+                <div class="post-header">
+                    <div class="vote-box">
+                        <form action="{% url 'homefeed' %}" method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="post_id" value="{{post.id}}">
+                            <button type="submit" name="action" value="upvote_post">⬆</button>
+                        </form>
+                        <span class="vote-count">{{ post.vote }}</span>
+                        <form action="{% url 'homefeed' %}" method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="post_id" value="{{post.id}}">
+                            <button type="submit"name="action" value="downvote_post">⬇</button>
+                        </form>
+                    </div>
+                    <h2 class="post-title">{{ post.title }}</h2>
+                </div>
+
+                <p>By {{ post.author.display_handle }}</p>
                 <p>{{ post.content }}</p>
                 <small>Published on {{ post.time_created|date:"F j, Y, g:i A"}}</small>
                 <!--comment form-->>
                 <div class="comment-form"> 
                     {% if user.is_authenticated %}
                         <!-- Comment form toggle button -->
-                        <button type="button" onclick="toggleCommentForm({{post.id }})">
+                        <button type="button" onclick="toggleCommentForm('{{ post.id }}')">
                             Add Comment
                         </button>
 
@@ -95,11 +169,11 @@
                                 {% csrf_token %}
                                 <input type="hidden" name="post_id" value="{{ post.id }}">
                                 <textarea name="content" rows="3" cols="40" placeholder="Write your comment..."></textarea><br>
-                                <button type="submit">Submit</button>
+                                <button type="submit" name="action" value="create_comment">Post Comment</button>
                             </form>
                         </div>
                     {% else %}
-                        <p><small><a href="{% url 'login' %}">Log in</a> to comment</small></p>
+                        <p><small><a href="{% url 'authorsignin' %}">Log in</a> to comment</small></p>
                     {% endif %}
                 </div>
                 
@@ -113,7 +187,7 @@
 
                 <!--Comment section-->
                 <div class="comment">
-                    <h3 style="font-size:1em; color:#333;">Comments</h3>
+                    <h3 style="font-size:1em; color:#95c16e;">Comments</h3>
                     {% if post.comment_set.all %}
                         {%for comment in post.comment_set.all %}
                             <div class="comment">
