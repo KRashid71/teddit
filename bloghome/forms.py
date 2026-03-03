@@ -1,31 +1,43 @@
 from django import forms
 from django.contrib.auth.models import User
-from .models import Authors
+from .models import AuthorModel, PostModel
 
 class AuthorSignupForm(forms.ModelForm):
-    
-    #fields for user creation
-    username = forms.CharField(max_length=150,required=True)
+    # extra fields for creating the linked User 
+    username = forms.CharField(max_length=150, required=True)
     password = forms.CharField(widget=forms.PasswordInput)
-
-    class Meta:
-        model = Authors
-        fields = ['name', 'email', 'display_handle', 'username', 'password']
-
-    def save(self, commit= True):
-        #create User instance
-        user= User.objects.create_user(
+    
+    class Meta: 
+        model = AuthorModel 
+        fields = ['email', 'display_handle', 'username', 'password'] 
+        
+    def save(self, commit=True): 
+    # create the User instance first 
+        user = User.objects.create_user( 
             username=self.cleaned_data['username'],
             email=self.cleaned_data['email'],
             password=self.cleaned_data['password']
         )
-        #creare author instance linked to User
-        author = super().save(commit=False)
-        author.user = user
+    # now create the AuthorModel linked to that User 
+        author = AuthorModel( 
+            user=user,
+            email=self.cleaned_data['email'], 
+            display_handle=self.cleaned_data['display_handle'] 
+        )
         if commit:
-            author.save()
+            author.save() 
         return author
         
 class AuthorSigninForm(forms.Form):
     display_handle=forms.CharField(max_length=50, required=True)
     password=forms.CharField(widget=forms.PasswordInput, required=True)
+
+class WritePostForm(forms.ModelForm):
+    class Meta:
+        model = PostModel
+        fields = ['title', 'content']
+        widgets={
+            'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Title'}),
+            'content': forms.Textarea(attrs={'class': 'form-control', 'placeholder':'Write some stuff...'}),
+        }
+

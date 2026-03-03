@@ -1,0 +1,153 @@
+<!-- templates/posts/post_list.html -->
+
+<!-- bloghome/post_list.html -->
+
+
+<style>
+  .post-item {
+    display: flex;
+    background-color: #1e1e1e; /* dark gray background */
+    border: 1px solid #444;
+    border-radius: 4px;
+    margin: 15px 20px;
+    padding: 10px;
+    margin-bottom: 1px;
+  }
+
+  .vote-column {
+    width: 50px;
+    text-align: center;
+    color: #aaa;
+    font-size: 18px;
+    margin-right: 10px;
+  }
+
+  .vote-column .arrow {
+    cursor: pointer;
+    line-height: 1.2em;
+  }
+
+  .vote-column .score {
+    font-weight: bold;
+    color: #fff;
+    margin: 4px 0;
+  }
+
+  .post-content {
+    flex: 1;
+  }
+
+  .post-title {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #fff;
+    margin-bottom: 4px;
+  }
+
+  .post-meta {
+    font-size: 0.85em;
+    color: #aaa;
+    margin-bottom: 8px;
+  }
+
+  .post-body {
+    color: #ddd;
+  }
+
+  .comments {
+    margin-top: 1px;      /* spacing around comments */
+    margin: 10px 20px;
+    margin-top: 1px;
+    padding: 10px;
+    background-color: #2a2a2a; /* slightly lighter than post background */
+    border: 1px solid #444;
+    border-radius: 4px;
+  }
+
+  .comment-content {
+    background-color: #333;   /* darker box for each comment */
+    padding: 8px;
+    margin-bottom: 8px;
+    border-radius: 4px;
+    color: #ddd;
+  }
+
+  .comment-meta {
+    font-size: 0.8em;
+    color: #888;
+    margin-top: 4px;
+  }
+
+
+</style>
+
+
+
+{% for post in posts %}
+<div class="post-item">
+  <!-- Left vote column -->
+  <div class="vote-column">
+    <div class="arrow up">&#9650;</div>
+    <div class="score">0</div> <!-- you can replace with post.upvotes -->
+    <div class="arrow down">&#9660;</div>
+  </div>
+
+  <!-- Right content -->
+  <div class="post-content">
+    <div class="post-title">
+      {{ post.title }}
+    </div>
+    <div class="post-meta">
+      Posted {{ post.created_at|timesince }} ago by {{ post.author.authormodel.display_handle }}
+    </div>
+    <div class="post-body">
+      {{ post.content }}
+    </div>
+  </div>
+</div>
+  <!-- Comment section -->
+<div class="comments">
+  {% for comment in post.commentmodel_set.all %}
+    <div class ="comment-content">
+      {{ comment.content }}
+    </div>
+    <div class ="comment-meta"> 
+      {{comment.created_at|timesince}} ago by {{ comment.author.authormodel.display_handle }}
+    </div>
+  {% empty %} 
+    <p>No comments yet.</p>
+  {% endfor %}
+</div>
+
+{% empty %}
+<p>No posts yet.</p>
+{% endfor %}
+
+
+
+
+
+
+<!-- {% for post in posts %}
+  <div class="post">
+    <h3>{{ post.title }}</h3>
+    <p>{{ post.content }}</p>
+    <span>Posted by {{ post.author.display_handle }} on {{ post.created_at }}</span>
+
+   Voting buttons
+    <br>
+        <button>Upvote</button>
+        <button>Downvote</button>
+    </br>
+
+    Comment section
+    <div class="comments">
+      {% for comment in post.comments.all %}
+        <p>{{ comment.author }}: {{ comment.text }}</p>
+      {% endfor %}
+    </div>
+
+    Comment button
+    <button>Add Comment</button>
+  </div>
+{% endfor %} -->

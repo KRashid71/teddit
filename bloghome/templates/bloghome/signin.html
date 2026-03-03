@@ -10,5 +10,7 @@
         {{ form.as_p }}
         <button type="submit">Sign In</button>
     </form>
+    <!-- button to redirect to signup page -->
+    <button onclick="window.location.href='{% url 'authorsignup' %}'">Don't have an account? Sign Up</button>
 </body>
 </html>
