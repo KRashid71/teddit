@@ -20,7 +20,7 @@ class PostModel(models.Model):
     content=models.TextField(max_length=5000)
     author=models.ForeignKey(AuthorModel, on_delete=models.CASCADE)
     created_at=models.DateTimeField(auto_now_add=True)
-
+    points=models.IntegerField(default=0)
     def __str__(self):
         return self.title
     
@@ -34,16 +34,23 @@ class CommentModel(models.Model):
         return f'Comment by {self.author.display_handle} on {self.post.title}'
 
 class VoteModel(models.Model):
-    vote_type=models.CharField(max_length=10) # 'upvote' or 'downvote'
+    # UPVOTE=1
+    # DOWNVOTE=-1
+    vote_choices = [
+        (1 ,'Upvote'),
+        (-1, 'Downvote'),
+    ]
+    #vote_type=models.CharField(max_length=10) # 'upvote' or 'downvote'
+    value=models.IntegerField(choices=vote_choices)
     author=models.ForeignKey(AuthorModel, on_delete=models.CASCADE)
-    created_at=models.DateTimeField(default=timezone.now)
+    created_at=models.DateTimeField(auto_now_add=True)
 
     class Meta:
         abstract=True
 
 class PostVoteModel(VoteModel):
+    
     post=models.ForeignKey(PostModel, on_delete=models.CASCADE)
-    author=models.ForeignKey(AuthorModel, on_delete=models.CASCADE)
     class Meta:
         unique_together = ('post', 'author')  # Ensure one vote per author per post
 

@@ -98,7 +98,7 @@
       {{ post.title }}
     </div>
     <div class="post-meta">
-      Posted {{ post.created_at|timesince }} ago by {{ post.author.authormodel.display_handle }}
+      Posted {{ post.created_at }} by {{ post.author.authormodel.display_handle }}
     </div>
     <div class="post-body">
       {{ post.content }}
@@ -112,7 +112,7 @@
       {{ comment.content }}
     </div>
     <div class ="comment-meta"> 
-      {{comment.created_at|timesince}} ago by {{ comment.author.authormodel.display_handle }}
+      {{comment.created_at}} by {{ comment.author.authormodel.display_handle }}
     </div>
   {% empty %} 
     <p>No comments yet.</p>
@@ -122,10 +122,6 @@
 {% empty %}
 <p>No posts yet.</p>
 {% endfor %}
-
-
-
-
 
 
 <!-- {% for post in posts %}

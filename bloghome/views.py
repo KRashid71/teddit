@@ -79,16 +79,33 @@ class AuthorSignin(View):
             except AuthorModel.DoesNotExist:
                 form.add_error('display_handle', 'Author with this display handle does not exist')
                 return render(request,'bloghome/signin.html',{'form':form})
-        
+
 class AuthorSignout(View):
     def post(self, request):
         if request.user.is_authenticated:
             logout(request)
             return redirect('authorsignin')  # Redirect to signin page after signout
         else:
-            return redirect('authorsignin')  # Redirect to signin page if not authenticated
+            return redirect('authorsignup')  # Redirect to signup page if not authenticated
 
 class PostListView(View):
     def get(self, request):
         posts= PostModel.objects.all().order_by("-created_at")
         return render(request, "bloghome/post_list.html", {"posts": posts})
+
+class PostVotingView(View):
+    def post(self, request, post_id):
+        if request.user.is_authenticated:
+            last_author_vote = PostVoteModel.objects.filter(post_id=post_id, author=request.user.authormodel).last()
+            if last_author_vote and last_author_vote.value == int(-1):
+                # If the last vote was a downvote
+                PostModel.objects.filter(id=post_id).points+=2
+
+                
+            else:
+                # Otherwise, create or update the vote
+                PostVoteModel.objects.update_or_create(
+                    post_id=post_id,
+                    author=request.user.authormodel,
+                    defaults={'value': request.POST.get('vote_value')}
+                )

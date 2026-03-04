@@ -1,5 +1,5 @@
 from django.urls import path, include
-from .views import Home, AuthorSignup, AuthorSignin, AuthorSignout, WritePostView
+from .views import Home, AuthorSignup, AuthorSignin, AuthorSignout, WritePostView, PostVotingView
 
 urlpatterns = [
     path('', Home.as_view(), name='home'),
@@ -8,4 +8,5 @@ urlpatterns = [
     path('signin/', AuthorSignin.as_view(), name='authorsignin'),
     path('signout/', AuthorSignout.as_view(), name='authorsignout'),
     path('writepost/', WritePostView.as_view(), name='write_post'),
+    path('vote/<int:post_id>/', PostVotingView.as_view(), name='post_vote')
 ]
