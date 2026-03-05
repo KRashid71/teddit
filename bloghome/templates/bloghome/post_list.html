@@ -77,7 +77,27 @@
     color: #888;
     margin-top: 4px;
   }
+  .arrow {
+  cursor: pointer;
+  background: none;
+  border: none;
+  font-size: 18px;
+  color: #aaa;
+  }
 
+  .arrow.active.up {
+    color: #ff4500; /* orange for upvote */
+  }
+
+  .arrow.active.down {
+    color: #0079d3; /* blue for downvote */
+  }
+
+  .score {
+    font-weight: bold;
+    color: #fff;
+    margin: 4px 0;
+  }
 
 </style>
 
@@ -87,9 +107,24 @@
 <div class="post-item">
   <!-- Left vote column -->
   <div class="vote-column">
-    <div class="arrow up">&#9650;</div>
-    <div class="score">0</div> <!-- you can replace with post.upvotes -->
-    <div class="arrow down">&#9660;</div>
+    <!-- UpVote -->
+    <form method="post" action="{% url 'post_vote' post.id %}">
+      {% csrf_token %}
+      <input type="hidden" name="vote_type" value="upvote">
+      <button type="submit" class="arrow {% if post.user_vote == 'upvote' %}active up{% endif %}">▲</button>
+    </form>
+    <!-- Score -->
+     <div class="score">
+      {{ post.score }}
+     </div>
+
+    <!-- DownVote -->
+    <form method="post" action="{% url 'post_vote' post.id %}">
+      {% csrf_token %}
+      <input type="hidden" name="vote_type" value="downvote">
+      <button type="submit" class="arrow {% if post.user_vote == 'downvote' %}active down{% endif %}">▼</button>
+    </form>
+
   </div>
 
   <!-- Right content -->

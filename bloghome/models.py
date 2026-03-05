@@ -34,14 +34,9 @@ class CommentModel(models.Model):
         return f'Comment by {self.author.display_handle} on {self.post.title}'
 
 class VoteModel(models.Model):
-    # UPVOTE=1
-    # DOWNVOTE=-1
-    vote_choices = [
-        (1 ,'Upvote'),
-        (-1, 'Downvote'),
-    ]
-    #vote_type=models.CharField(max_length=10) # 'upvote' or 'downvote'
-    value=models.IntegerField(choices=vote_choices)
+ 
+    VOTE_CHOICES=[('upvote','Upvote'),('downvote','Downvote')]
+    vote_type=models.CharField(max_length=10, choices=VOTE_CHOICES)
     author=models.ForeignKey(AuthorModel, on_delete=models.CASCADE)
     created_at=models.DateTimeField(auto_now_add=True)
 

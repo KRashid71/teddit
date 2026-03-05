@@ -91,21 +91,39 @@ class AuthorSignout(View):
 class PostListView(View):
     def get(self, request):
         posts= PostModel.objects.all().order_by("-created_at")
+        
+        for post in posts:
+            #total score
+            # post.score = PostModel.points
+            upvotes = PostVoteModel.objects.filter(post=post, vote_type='upvote').count()
+            downvotes = PostVoteModel.objects.filter(post=post, vote_type='downvote').count()
+            post.score = upvotes - downvotes
+            
+            # current users last vote on this post
+            user_vote = None
+            if request.user.is_authenticated:
+                user_vote = PostVoteModel.objects.filter(post=post, author=request.user.authormodel).last()
+            post.user_vote = user_vote.vote_type if user_vote else None
+
         return render(request, "bloghome/post_list.html", {"posts": posts})
 
 class PostVotingView(View):
     def post(self, request, post_id):
         if request.user.is_authenticated:
-            last_author_vote = PostVoteModel.objects.filter(post_id=post_id, author=request.user.authormodel).last()
-            if last_author_vote and last_author_vote.value == int(-1):
-                # If the last vote was a downvote
-                PostModel.objects.filter(id=post_id).points+=2
-
-                
+            vote_type = request.POST.get('vote_type')
+            vote_post = get_object_or_404(PostModel, id=post_id)
+            author = request.user.authormodel
+            existing_vote = PostVoteModel.objects.filter(post=vote_post, author=author).first()
+            if existing_vote:
+                if existing_vote.vote_type == vote_type:
+                    existing_vote.delete()  # Remove vote if same button is clicked again
+                else:
+                    existing_vote.vote_type = vote_type  # Update to new vote type
+                    existing_vote.save()
             else:
-                # Otherwise, create or update the vote
-                PostVoteModel.objects.update_or_create(
-                    post_id=post_id,
-                    author=request.user.authormodel,
-                    defaults={'value': request.POST.get('vote_value')}
-                )
+                PostVoteModel.objects.create(post=vote_post, author=author, vote_type=vote_type)
+        else: 
+            #promnt user to sign in before voting, provide message,"not a valid author-user"
+            return redirect('authorsignin')
+
+        return redirect('home')
