@@ -20,7 +20,14 @@ class PostModel(models.Model):
     content=models.TextField(max_length=5000)
     author=models.ForeignKey(AuthorModel, on_delete=models.CASCADE)
     created_at=models.DateTimeField(auto_now_add=True)
-    points=models.IntegerField(default=0)
+    # points=models.IntegerField(default=0)
+
+    @property
+    def points(self):
+        upvotes=self.postvotemodel_set.filter(vote_type='upvote').count()
+        downvotes=self.postvotemodel_set.filter(vote_type='downvote').count()
+        return upvotes-downvotes
+
     def __str__(self):
         return self.title
     

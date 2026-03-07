@@ -111,18 +111,18 @@
     <form method="post" action="{% url 'post_vote' post.id %}">
       {% csrf_token %}
       <input type="hidden" name="vote_type" value="upvote">
-      <button type="submit" class="arrow {% if post.user_vote == 'upvote' %}active up{% endif %}">▲</button>
+      <button type="submit" class="arrow {% if post.user_lastvotetype == 'upvote' %}active up{% endif %}">▲</button>
     </form>
     <!-- Score -->
      <div class="score">
-      {{ post.score }}
+      {{ post.points }}
      </div>
 
     <!-- DownVote -->
     <form method="post" action="{% url 'post_vote' post.id %}">
       {% csrf_token %}
       <input type="hidden" name="vote_type" value="downvote">
-      <button type="submit" class="arrow {% if post.user_vote == 'downvote' %}active down{% endif %}">▼</button>
+      <button type="submit" class="arrow {% if post.user_lastvotetype == 'downvote' %}active down{% endif %}">▼</button>
     </form>
 
   </div>

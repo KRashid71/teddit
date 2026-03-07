@@ -20,18 +20,8 @@ class Home(View):
             return redirect('authorsignin')
     
     
-    # def post(self, request):
-    #     # form= PostForm()
-    #     # if form.is_valid():
-    #     #     form.save()
-    #     #     return redirect('home')
-    #     posts = PostModel.objects.all().order_by("-created_at")
-    #     return render(request, "bloghome/home.html", {"posts": posts})
-
+  
 class WritePostView(View):
-    # def get(self,request):
-    #     form=WritePostForm()
-        # return render(request,'bloghome/write_post.html',{'form':form})
     def post(self,request):
         if request.user.is_authenticated:
 
@@ -43,8 +33,7 @@ class WritePostView(View):
                 return redirect('home')
         else:
             return redirect('authorsignin')
-        # posts=PostModel.objects.all().order_by("-created_at")
-        # return render(request,'bloghome/home.html',{'form':form, 'posts': posts})
+        
 class AuthorSignup(View):
     def get(self, request):
         form = AuthorSignupForm()
@@ -94,16 +83,17 @@ class PostListView(View):
         
         for post in posts:
             #total score
-            # post.score = PostModel.points
-            upvotes = PostVoteModel.objects.filter(post=post, vote_type='upvote').count()
-            downvotes = PostVoteModel.objects.filter(post=post, vote_type='downvote').count()
-            post.score = upvotes - downvotes
             
+            # upvotes = PostVoteModel.objects.filter(post=post, vote_type='upvote').count()
+            # downvotes = PostVoteModel.objects.filter(post=post, vote_type='downvote').count()
+            # post.points = upvotes - downvotes
+            # post.save()  # Save the updated points to the database
+
             # current users last vote on this post
             user_vote = None
             if request.user.is_authenticated:
                 user_vote = PostVoteModel.objects.filter(post=post, author=request.user.authormodel).last()
-            post.user_vote = user_vote.vote_type if user_vote else None
+            post.user_lastvotetype = user_vote.vote_type if user_vote else None
 
         return render(request, "bloghome/post_list.html", {"posts": posts})
 
@@ -115,13 +105,17 @@ class PostVotingView(View):
             author = request.user.authormodel
             existing_vote = PostVoteModel.objects.filter(post=vote_post, author=author).first()
             if existing_vote:
+                # delete if any previous vote of this post-author pair exists
+                # existing_vote.delete()
                 if existing_vote.vote_type == vote_type:
                     existing_vote.delete()  # Remove vote if same button is clicked again
                 else:
-                    existing_vote.vote_type = vote_type  # Update to new vote type
-                    existing_vote.save()
+                    existing_vote.delete()
+                    post_vote=PostVoteModel.objects.create(post=vote_post, author=author, vote_type=vote_type)
+                    post_vote.save()
             else:
                 PostVoteModel.objects.create(post=vote_post, author=author, vote_type=vote_type)
+        
         else: 
             #promnt user to sign in before voting, provide message,"not a valid author-user"
             return redirect('authorsignin')
