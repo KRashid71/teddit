@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
-from .models import AuthorModel, PostModel
+from .models import AuthorModel, PostModel, CommentModel
+
 
 class AuthorSignupForm(forms.ModelForm):
     # extra fields for creating the linked User 
@@ -41,3 +42,10 @@ class WritePostForm(forms.ModelForm):
             'content': forms.Textarea(attrs={'class': 'form-control', 'placeholder':'Write some stuff...'}),
         }
 
+class WriteCommentForm(forms.ModelForm):
+    class Meta:
+        model = CommentModel
+        fields = ['content']
+        widgets = {
+            'content': forms.Textarea(attrs={'rows':3, 'placeholder':'Write a comment...'}),
+        }

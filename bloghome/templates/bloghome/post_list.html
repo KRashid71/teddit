@@ -86,12 +86,13 @@
   }
 
   .arrow.active.up {
-    color: #ff4500; /* orange for upvote */
+  color: #00c853; /* bright green */
   }
 
   .arrow.active.down {
-    color: #0079d3; /* blue for downvote */
+    color: #d32f2f; /* bright red */
   }
+
 
   .score {
     font-weight: bold;
@@ -111,7 +112,7 @@
     <form method="post" action="{% url 'post_vote' post.id %}">
       {% csrf_token %}
       <input type="hidden" name="vote_type" value="upvote">
-      <button type="submit" class="arrow {% if post.user_lastvotetype == 'upvote' %}active up{% endif %}">▲</button>
+      <button type="submit" class="arrow {% if post.user_lastvotetype == 'upvote' %} active up {% endif %}">▲</button>
     </form>
     <!-- Score -->
      <div class="score">
@@ -122,7 +123,7 @@
     <form method="post" action="{% url 'post_vote' post.id %}">
       {% csrf_token %}
       <input type="hidden" name="vote_type" value="downvote">
-      <button type="submit" class="arrow {% if post.user_lastvotetype == 'downvote' %}active down{% endif %}">▼</button>
+      <button type="submit" class="arrow {% if post.user_lastvotetype == 'downvote' %} active down {% endif %}">▼</button>
     </form>
 
   </div>
@@ -133,7 +134,7 @@
       {{ post.title }}
     </div>
     <div class="post-meta">
-      Posted {{ post.created_at }} by {{ post.author.authormodel.display_handle }}
+      Posted {{ post.created_at }} by {{ post.author.display_handle }}
     </div>
     <div class="post-body">
       {{ post.content }}
@@ -142,12 +143,22 @@
 </div>
   <!-- Comment section -->
 <div class="comments">
+  {% if request.user.is_authenticated %}
+    <form method="post" action ="{% url 'write_comment' post.id %}">
+      {% csrf_token %}
+      {{ comment_form.as_p}}
+      <button type="submit">Add Comment</button>
+    </form>
+  {% else %}
+    <p><a href="{% url 'authorsignin' %}">Sign in</a> to comment.</p>
+  {% endif %}
+
   {% for comment in post.commentmodel_set.all %}
     <div class ="comment-content">
       {{ comment.content }}
     </div>
     <div class ="comment-meta"> 
-      {{comment.created_at}} by {{ comment.author.authormodel.display_handle }}
+      {{comment.created_at}} by {{ comment.author.display_handle }}
     </div>
   {% empty %} 
     <p>No comments yet.</p>

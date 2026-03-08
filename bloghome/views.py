@@ -4,7 +4,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.views import View
 from django.db.models import Count, Q
 from .models import PostModel, AuthorModel, CommentModel, PostVoteModel
-from .forms import AuthorSignupForm, AuthorSigninForm, WritePostForm
+from .forms import AuthorSignupForm, AuthorSigninForm, WritePostForm, WriteCommentForm
 
 
 # Create your views here.
@@ -13,9 +13,10 @@ class Home(View):
     def get(self, request):
         if request.user.is_authenticated:
             form=WritePostForm()
+            comment_form = WriteCommentForm()
             posts=PostModel.objects.all().order_by("-created_at")
             # return HttpResponse("Welcome to the Home Page of Teddit!")
-            return render(request, "bloghome/home.html",{"form":form,"posts":posts})
+            return render(request, "bloghome/home.html",{"form":form, "comment_form":comment_form,"posts":posts})
         else:
             return redirect('authorsignin')
     
@@ -82,13 +83,7 @@ class PostListView(View):
         posts= PostModel.objects.all().order_by("-created_at")
         
         for post in posts:
-            #total score
             
-            # upvotes = PostVoteModel.objects.filter(post=post, vote_type='upvote').count()
-            # downvotes = PostVoteModel.objects.filter(post=post, vote_type='downvote').count()
-            # post.points = upvotes - downvotes
-            # post.save()  # Save the updated points to the database
-
             # current users last vote on this post
             user_vote = None
             if request.user.is_authenticated:
@@ -121,3 +116,18 @@ class PostVotingView(View):
             return redirect('authorsignin')
 
         return redirect('home')
+
+
+class WriteCommentView(View):
+    def post(self, request, post_id):
+        if request.user.is_authenticated:
+            post = get_object_or_404(PostModel, id = post_id)
+            form = WriteCommentForm(request.POST)
+            if form.is_valid():
+                comment = form.save(commit=False)
+                comment.post = post
+                comment.author = request.user.authormodel
+                comment.save()
+            return redirect('home')
+        else:
+            return redirect('authorsignin')
