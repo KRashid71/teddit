@@ -1,0 +1,11 @@
+touch .gitignore
+```
+
+Then open `.gitignore` in VS Code and add:
+```
+venv/
+__pycache__/
+*.pyc
+.env
+db.sqlite3
+*.log
