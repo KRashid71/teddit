@@ -37,6 +37,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    #third party apps
+    'rest_framework',
+
+    #local
+    'users',
 ]
 
 MIDDLEWARE = [
@@ -79,6 +85,16 @@ DATABASES = {
     }
 }
 
+# Set default User model to my custom user model
+AUTH_USER_MODEL = 'users.User'
+
+#RestFramework Settings
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    )
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
