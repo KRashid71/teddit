@@ -5,7 +5,7 @@ from django.contrib.auth.password_validation import validate_password
 User = get_user_model()
 
 ## To handle new user creation, writing to database
-class RegisterSerializer(serializers.ModelSerialize):
+class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, validators=[validate_password])
 
     class Meta:
@@ -26,6 +26,6 @@ class RegisterSerializer(serializers.ModelSerialize):
 class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['username', 'display_name', 'bio', 'post_karma', 'comment_karma','date_joined']
-        read_only_fields = ['post_karma','comment_karma', 'date_joined']
+        fields = ['username', 'display_name', 'bio', 'post_karma', 'comment_karma','date_joined','role']
+        read_only_fields = ['post_karma','comment_karma', 'date_joined','role']
 
